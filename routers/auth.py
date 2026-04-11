@@ -26,9 +26,7 @@ JWT_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", 1440))
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
-# ============================
-# Pydantic 모델
-# ============================
+
 class RegisterRequest(BaseModel):
     username: str
     password: str
@@ -39,9 +37,7 @@ class LoginRequest(BaseModel):
     password: str
 
 
-# ============================
-# 유틸
-# ============================
+
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
@@ -60,7 +56,7 @@ def decode_token(token: str) -> dict:
     try:
         return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
     except JWTError:
-        raise HTTPException(status_code=401, detail="토큰이 유효하지 않습니다.")
+        raise HTTPException(status_code=401, detail="토큰 유효하지 않습니다.")
 
 def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     return decode_token(token)

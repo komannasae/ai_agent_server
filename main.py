@@ -15,7 +15,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="🐶 대전 기반 반려견 동반 여행 추천 API")
+app = FastAPI(title=" 대전 기반 반려견 동반 여행 추천 API")
 
 # ============================
 # CORS
@@ -40,7 +40,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled error: {exc} | path: {request.url.path}")
     return JSONResponse(
         status_code=500,
-        content={"detail": "서버 내부 오류가 발생했습니다."}
+        content={"detail": "서버 내부 오류 발생."}
     )
 
 # ============================

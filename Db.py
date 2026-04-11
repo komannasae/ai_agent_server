@@ -199,7 +199,7 @@ def search_travel_places(query: str, dog_size: str = None, n_results: int = 5) -
 
 
 # ============================
-# 채팅
+# 채팅 (나중에)
 # ============================
 def save_chat_message(message_id: str, message: str, metadata: dict):
     chat_collection.upsert(

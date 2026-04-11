@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from database import get_db
-from models import ChatRequest
+from Db import get_db
+from model import ChatRequest
 
 router = APIRouter()
 
