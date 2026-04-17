@@ -59,17 +59,14 @@ app.include_router(ws_router,                                   tags=[" WebSocke
 @app.on_event("startup")
 async def startup():
     logger.info("============================")
-    logger.info("  강아지 여행 서버 시작")
+    logger.info("  강아지 동반 대전 여행 서버 시작")
     logger.info("============================")
     try:
-        from Db import travel_collection, chat_collection, hospital_collection
-        logger.info("ChromaDB 연결 완료")
-        logger.info(f"   - travel_places : {travel_collection.count()}개")
-        logger.info(f"   - chat_history  : {chat_collection.count()}개")
-        logger.info(f"   - hospitals     : {hospital_collection.count()}개")
+        from Db import init_db
+        init_db()
+        logger.info("PostgreSQL + pgvector 연결 완료")
     except Exception as e:
-        logger.error(f" ChromaDB 연결 실패: {e}")
-
+        logger.error(f"DB 연결 실패: {e}")
 @app.on_event("shutdown")
 async def shutdown():
     logger.info(" 서버 종료")
@@ -81,15 +78,17 @@ async def shutdown():
 def root():
     return {"message": " 서버 정상 작동"}
 
-@app.get("/health", tags=[" 서버"])
+@app.get("/health", tags=["서버"])
 async def health_check():
-    status = {"server": "ok", "chromadb": "unknown"}
+    status = {"server": "ok", "postgresql": "unknown"}
     try:
-        from Db import travel_collection
-        travel_collection.count()
-        status["chromadb"] = "ok"
+        from Db import engine
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        status["postgresql"] = "ok"
     except Exception as e:
-        status["chromadb"] = f"error: {str(e)}"
+        status["postgresql"] = f"error: {str(e)}"
 
     overall = all(v == "ok" for v in status.values())
     return JSONResponse(
