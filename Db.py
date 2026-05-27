@@ -131,7 +131,6 @@ def init_db():
                 created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """))
-
         # reviews
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS reviews (
@@ -144,6 +143,7 @@ def init_db():
                 created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """))
+
 
         conn.commit()
     print("DB 테이블 초기화 완료")
