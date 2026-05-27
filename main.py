@@ -1,10 +1,12 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 import logging
+import os
 
-from routers import auth, dog, trip, weather, notification
+from routers import auth, dog, trip, weather, notification, review
 from ws.location import router as ws_router
 
 load_dotenv()
@@ -51,7 +53,14 @@ app.include_router(dog.router,          prefix="/dog",          tags=["강아지
 app.include_router(trip.router,         prefix="/trip",         tags=["여행"])
 app.include_router(weather.router,      prefix="/weather",      tags=[" 날씨"])
 app.include_router(notification.router, prefix="/notification", tags=[" 알림"])
+app.include_router(review.router,       prefix="/review",       tags=["리뷰"])
 app.include_router(ws_router,                                   tags=[" WebSocket"])
+
+# ============================
+# 이미지 정적 파일 서빙
+# ============================
+os.makedirs("uploads/reviews", exist_ok=True)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # ============================
 # 시작 / 종료

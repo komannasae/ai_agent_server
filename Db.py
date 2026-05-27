@@ -351,4 +351,67 @@ def search_hospitals(query: str, n_results: int = 5) -> list:
             ORDER BY embedding <=> :embedding
             LIMIT :n
         """), {"embedding": embedding, "n": n_results}).mappings().fetchall()
+    return [dict(r) for r in rows]\
+
+
+
+# ============================
+# 리뷰
+# ============================
+REVIEW_IMAGE_DIR = "uploads/reviews"
+os.makedirs(REVIEW_IMAGE_DIR, exist_ok=True)
+
+
+def save_review(user_id: str, content: str, rating: float,
+                image_path: str = None) -> dict:
+    review_id = str(uuid.uuid4())
+    embedding = get_embedding(content)
+    with Session() as sess:
+        sess.execute(text("""
+                          INSERT INTO reviews (id, user_id, content, rating, image_path, embedding)
+                          VALUES (:id, :user_id, :content, :rating, :image_path, :embedding)
+                          """), {"id": review_id, "user_id": user_id, "content": content,
+                                 "rating": rating, "image_path": image_path, "embedding": embedding})
+        sess.commit()
+    return get_review_by_id(review_id)
+
+
+def get_review_by_id(review_id: str) -> dict | None:
+    with Session() as sess:
+        row = sess.execute(
+            text("SELECT * FROM reviews WHERE id=:id"),
+            {"id": review_id}
+        ).mappings().fetchone()
+    return dict(row) if row else None
+
+
+def get_reviews(user_id: str = None, skip: int = 0, limit: int = 20) -> list:
+    with Session() as sess:
+        if user_id:
+            rows = sess.execute(text("""
+                                     SELECT *
+                                     FROM reviews
+                                     WHERE user_id = :user_id
+                                     ORDER BY created_at DESC LIMIT :limit
+                                     OFFSET :skip
+                                     """), {"user_id": user_id, "limit": limit, "skip": skip}).mappings().fetchall()
+        else:
+            rows = sess.execute(text("""
+                                     SELECT *
+                                     FROM reviews
+                                     ORDER BY created_at DESC LIMIT :limit
+                                     OFFSET :skip
+                                     """), {"limit": limit, "skip": skip}).mappings().fetchall()
     return [dict(r) for r in rows]
+
+
+def delete_review(review_id: str) -> bool:
+    row = get_review_by_id(review_id)
+    if not row:
+        return False
+    if row.get("image_path") and os.path.exists(row["image_path"]):
+        os.remove(row["image_path"])
+    with Session() as sess:
+        sess.execute(text("DELETE FROM reviews WHERE id=:id"), {"id": review_id})
+        sess.commit()
+    return True
