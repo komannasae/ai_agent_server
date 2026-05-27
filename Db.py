@@ -144,10 +144,8 @@ def init_db():
             )
         """))
 
-
         conn.commit()
     print("DB 테이블 초기화 완료")
-
 
 # ============================
 # 유저
@@ -416,7 +414,6 @@ def get_reviews(user_id: str = None, skip: int = 0, limit: int = 20) -> list:
                                      OFFSET :skip
                                      """), {"limit": limit, "skip": skip}).mappings().fetchall()
     return [dict(r) for r in rows]
-
 
 def delete_review(review_id: str) -> bool:
     row = get_review_by_id(review_id)
