@@ -365,9 +365,8 @@ def search_hospitals(query: str, n_results: int = 5) -> list:
     return [dict(r) for r in rows]
 
 
-
 # ============================
-# 리뷰
+# 리뷰 (수정 중)
 # ============================
 REVIEW_IMAGE_DIR = "uploads/reviews"
 os.makedirs(REVIEW_IMAGE_DIR, exist_ok=True)
@@ -387,6 +386,7 @@ def save_review(user_id: str, content: str, rating: float,
     return get_review_by_id(review_id)
 
 
+
 def get_review_by_id(review_id: str) -> dict | None:
     with Session() as sess:
         row = sess.execute(
@@ -394,6 +394,7 @@ def get_review_by_id(review_id: str) -> dict | None:
             {"id": review_id}
         ).mappings().fetchone()
     return dict(row) if row else None
+
 
 
 def get_reviews(user_id: str = None, skip: int = 0, limit: int = 20) -> list:
@@ -414,6 +415,7 @@ def get_reviews(user_id: str = None, skip: int = 0, limit: int = 20) -> list:
                                      OFFSET :skip
                                      """), {"limit": limit, "skip": skip}).mappings().fetchall()
     return [dict(r) for r in rows]
+
 
 def delete_review(review_id: str) -> bool:
     row = get_review_by_id(review_id)
