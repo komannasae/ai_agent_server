@@ -132,6 +132,19 @@ def init_db():
             )
         """))
 
+        # reviews
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS reviews (
+                id          TEXT PRIMARY KEY,
+                user_id     TEXT NOT NULL,
+                content     TEXT NOT NULL,
+                rating      FLOAT NOT NULL,
+                image_path  TEXT,
+                embedding   vector(768),
+                created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """))
+
         conn.commit()
     print("DB 테이블 초기화 완료")
 
@@ -351,7 +364,7 @@ def search_hospitals(query: str, n_results: int = 5) -> list:
             ORDER BY embedding <=> :embedding
             LIMIT :n
         """), {"embedding": embedding, "n": n_results}).mappings().fetchall()
-    return [dict(r) for r in rows]\
+    return [dict(r) for r in rows]
 
 
 
@@ -414,4 +427,5 @@ def delete_review(review_id: str) -> bool:
     with Session() as sess:
         sess.execute(text("DELETE FROM reviews WHERE id=:id"), {"id": review_id})
         sess.commit()
+
     return True
